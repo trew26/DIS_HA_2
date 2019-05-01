@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import de.dis2011.data.DB2ConnectionManager;
 
 /**
  * Makler-Bean
@@ -132,10 +131,6 @@ public class Makler {
                 System.out.println("Makler mit ID " + id + " wurde gelöscht.");
 
             }
-
-
-
-
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -207,7 +202,9 @@ public class Makler {
             System.out.println("Es existieren folgende Makler:");
 
             while (rs.next()) {
-                System.out.println("Name: " + rs.getString("name") + ", ID: " + rs.getString("id"));
+                System.out.println("Name: " + rs.getString("name") +
+						", ID: " + rs.getString("id") +
+						", Login: " + rs.getString("login"));
             }
 
             System.out.println();
@@ -217,4 +214,51 @@ public class Makler {
         }
 
     }
+
+    public static Boolean check_login(String login, String password) {
+		// Hole Verbindung
+		Connection con = DB2ConnectionManager.getInstance().getConnection();
+		Boolean verified_login = false;
+
+		try {
+			// Get the ID for the login
+			String get_id_sql = "Select id FROM makler where login=?";
+			PreparedStatement id_pstmt = con.prepareStatement(get_id_sql);
+
+			id_pstmt.setString(1, login);
+			ResultSet id_rs = id_pstmt.executeQuery();
+
+			if(!id_rs.next()){
+				System.out.println("Es existiert kein Makler mit dem Login " + login + "!");
+				verified_login = false;
+				return verified_login;
+			}
+			else {
+				int makler_id = id_rs.getInt("id");
+				String select_sql = "SELECT login, password FROM makler WHERE id=?";
+				PreparedStatement login_pstmt = con.prepareStatement(select_sql);
+
+				login_pstmt.setInt(1, makler_id);
+				ResultSet login_rs = login_pstmt.executeQuery();
+
+				if(login_rs.next()){
+					String db_login = login_rs.getString("login");
+					String db_password = login_rs.getString("password");
+
+					if (db_login.equals(login) && db_password.equals(password)) {
+						verified_login = true;
+					}
+					else {
+						verified_login = false;
+					}
+				}
+			}
+
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return verified_login;
+	}
 }

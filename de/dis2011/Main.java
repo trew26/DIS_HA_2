@@ -2,6 +2,8 @@ package de.dis2011;
 
 import de.dis2011.data.Makler;
 
+import java.text.Normalizer;
+
 /**
  * Hauptklasse
  */
@@ -20,10 +22,12 @@ public class Main {
 		//Menüoptionen
 		final int MENU_MAKLER = 0;
 		final int QUIT = 1;
+		final int MENU_ESTATES = 2;
 		
 		//Erzeuge Menü
 		Menu mainMenu = new Menu("Hauptmenü");
 		mainMenu.addEntry("Makler-Verwaltung", MENU_MAKLER);
+		mainMenu.addEntry("Estate-Verwaltung", MENU_ESTATES);
 		mainMenu.addEntry("Beenden", QUIT);
 		
 		//Verarbeite Eingabe
@@ -41,7 +45,9 @@ public class Main {
 						showMaklerMenu();
 						break;
 					}
-
+				case MENU_ESTATES:
+					showEstateMenu();
+					break;
 				case QUIT:
 					return;
 			}
@@ -134,5 +140,23 @@ public class Main {
 
 	public static void showAllMaklers(){
 		Makler.showAll();
+	}
+
+	public static void showEstateMenu() {
+		String agent_login = FormUtil.readString("Bitte geben Sie den Makler Login ein");
+		String agent_pw = FormUtil.readString("Bitte geben Sie das Makler Passwort ein");
+
+		Boolean correct_login = Makler.check_login(agent_login, agent_pw);
+
+		if (correct_login){
+			System.out.println("Login erfolgreich!");
+			System.out.println();
+
+		} else {
+			System.out.println("Login war nicht erfolgreich!");
+			System.out.println();
+
+		}
+
 	}
 }
