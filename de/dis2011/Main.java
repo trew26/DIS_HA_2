@@ -143,6 +143,7 @@ public class Main {
 	}
 
 	public static void showEstateMenu() {
+		// check login from makler
 		String agent_login = FormUtil.readString("Bitte geben Sie den Makler Login ein");
 		String agent_pw = FormUtil.readString("Bitte geben Sie das Makler Passwort ein");
 
@@ -156,6 +157,42 @@ public class Main {
 			System.out.println("Login war nicht erfolgreich!");
 			System.out.println();
 
+		}
+
+		//Menüoptionen
+		final int NEW_ESTATE = 0;
+		final int BACK = 1;
+		final int EDIT_ESTATE = 2;
+		final int DELETE_ESTATE = 3;
+		final int SHOW_ESTATES = 4;
+
+		//Estateverwaltungsmenü
+		Menu estateMenu = new Menu("Estate-Verwaltung");
+		estateMenu.addEntry("Estate anlegen", NEW_ESTATE);
+		estateMenu.addEntry("Zeige alle Estates", EDIT_ESTATE);
+		estateMenu.addEntry("Estate bearbeiten", DELETE_ESTATE);
+		estateMenu.addEntry("Estate löschen", SHOW_ESTATES);
+		estateMenu.addEntry("Zurück zum Hauptmenü", BACK);
+
+		//Verarbeite Eingabe
+		while(true) {
+			int response = estateMenu.show();
+			switch(response) {
+				case NEW_ESTATE:
+					System.out.println("Not yet implemented");
+					break;
+				case BACK:
+					return;
+				case EDIT_ESTATE:
+					System.out.println("Not yet implemented");
+					break;
+				case DELETE_ESTATE:
+					System.out.println("Not yet implemented");
+					break;
+				case SHOW_ESTATES:
+					System.out.println("Not yet implemented");
+					break;
+			}
 		}
 
 	}
