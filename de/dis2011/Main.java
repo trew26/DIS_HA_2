@@ -179,7 +179,7 @@ public class Main {
 			int response = estateMenu.show();
 			switch(response) {
 				case NEW_ESTATE:
-					System.out.println("Not yet implemented");
+					createEstate();
 					break;
 				case BACK:
 					return;
@@ -194,6 +194,10 @@ public class Main {
 					break;
 			}
 		}
+
+	}
+
+	public static void createEstate() {
 
 	}
 }

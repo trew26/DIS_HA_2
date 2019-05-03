@@ -8,7 +8,7 @@ import java.sql.Statement;
 
 public class Estate {
 
-    private int id;
+    private int id = -1;
     private int zip;
     private int number;
 
