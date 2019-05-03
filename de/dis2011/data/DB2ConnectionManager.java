@@ -45,6 +45,7 @@ public class DB2ConnectionManager {
             //System.out.println(System.getProperty("java.class.path"));
 
 			// Verbindung zur DB2 herstellen
+			//Class.forName("com.ibm.db2.jcc.DB2Driver");
 			Class.forName("com.ibm.db2.jcc.DB2Driver");
 			_con = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcPass);
 

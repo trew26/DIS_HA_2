@@ -1,6 +1,7 @@
 package de.dis2011;
 
 import de.dis2011.data.Makler;
+import de.dis2011.data.Estate;
 
 import java.text.Normalizer;
 
@@ -179,7 +180,7 @@ public class Main {
 			int response = estateMenu.show();
 			switch(response) {
 				case NEW_ESTATE:
-					createEstate();
+					createEstate(agent_login);
 					break;
 				case BACK:
 					return;
@@ -197,7 +198,17 @@ public class Main {
 
 	}
 
-	public static void createEstate() {
+	public static void createEstate(String makler_login) {
+		Estate estate = new Estate();
+		//Estate attribute abfragen
+		estate.setZip(FormUtil.readInt("ZIP (int)"));
+		estate.setNumber(FormUtil.readInt("Number (int)"));
+		estate.setCity(FormUtil.readString("City (string)"));
+		estate.setStreet(FormUtil.readString("Street (string)"));
+		estate.setArea(FormUtil.readString("Area (string)"));
+		//den makler benutzen welcher sich eingeloggt hat
+		estate.setFk_agent(makler_login);
 
+		estate.save();
 	}
 }
