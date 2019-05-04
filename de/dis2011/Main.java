@@ -15,7 +15,7 @@ public class Main {
 	public static void main(String[] args) {
 		showMainMenu();
 	}
-	
+
 	/**
 	 * Zeigt das Hauptmenü
 	 */
@@ -24,17 +24,17 @@ public class Main {
 		final int MENU_MAKLER = 0;
 		final int QUIT = 1;
 		final int MENU_ESTATES = 2;
-		
+
 		//Erzeuge Menü
 		Menu mainMenu = new Menu("Hauptmenü");
 		mainMenu.addEntry("Makler-Verwaltung", MENU_MAKLER);
 		mainMenu.addEntry("Estate-Verwaltung", MENU_ESTATES);
 		mainMenu.addEntry("Beenden", QUIT);
-		
+
 		//Verarbeite Eingabe
 		while(true) {
 			int response = mainMenu.show();
-			
+
 			switch(response) {
 				case MENU_MAKLER:
 					String password = "temppw123";
@@ -54,7 +54,7 @@ public class Main {
 			}
 		}
 	}
-	
+
 	/**
 	 * Zeigt die Maklerverwaltung
 	 */
@@ -65,7 +65,7 @@ public class Main {
 		final int EDIT_MAKLER = 2;
 		final int DELETE_MAKLER = 3;
 		final int SHOW_MAKLERS = 4;
-		
+
 		//Maklerverwaltungsmenü
 		Menu maklerMenu = new Menu("Makler-Verwaltung");
 		maklerMenu.addEntry("Neuer Makler", NEW_MAKLER);
@@ -73,7 +73,7 @@ public class Main {
 		maklerMenu.addEntry("Makler bearbeiten", EDIT_MAKLER);
 		maklerMenu.addEntry("Makler löschen", DELETE_MAKLER);
 		maklerMenu.addEntry("Zurück zum Hauptmenü", BACK);
-		
+
 		//Verarbeite Eingabe
 		while(true) {
 			int response = maklerMenu.show();
@@ -95,20 +95,20 @@ public class Main {
 			}
 		}
 	}
-	
+
 	/**
 	 * Legt einen neuen Makler an, nachdem der Benutzer
 	 * die entprechenden Daten eingegeben hat.
 	 */
 	public static void newMakler() {
 		Makler m = new Makler();
-		
+
 		m.setName(FormUtil.readString("Name"));
 		m.setAddress(FormUtil.readString("Adresse"));
 		m.setLogin(FormUtil.readString("Login"));
 		m.setPassword(FormUtil.readString("Passwort"));
 		m.save();
-		
+
 		System.out.println("Makler mit der ID "+m.getId()+" wurde erzeugt.");
 	}
 
@@ -170,15 +170,17 @@ public class Main {
 		}
 
 		//Menüoptionen
-		final int NEW_ESTATE = 0;
-		final int BACK = 1;
-		final int EDIT_ESTATE = 2;
-		final int DELETE_ESTATE = 3;
-		final int SHOW_ESTATES = 4;
+		final int NEW_HOUSE = 0;
+		final int NEW_APARTMENT = 1;
+		final int BACK = 2;
+		final int EDIT_ESTATE = 3;
+		final int DELETE_ESTATE = 4;
+		final int SHOW_ESTATES = 5;
 
 		//Estateverwaltungsmenü
 		Menu estateMenu = new Menu("Estate-Verwaltung");
-		estateMenu.addEntry("Estate anlegen", NEW_ESTATE);
+		estateMenu.addEntry("Haus anlegen", NEW_HOUSE);
+		estateMenu.addEntry("Apartment anlegen", NEW_APARTMENT);
 		estateMenu.addEntry("Zeige alle Estates", SHOW_ESTATES);
 		estateMenu.addEntry("Estate bearbeiten", EDIT_ESTATE);
 		estateMenu.addEntry("Estate löschen", DELETE_ESTATE);
@@ -188,8 +190,11 @@ public class Main {
 		while(true) {
 			int response = estateMenu.show();
 			switch(response) {
-				case NEW_ESTATE:
-					createEstate(agent_login);
+				case NEW_HOUSE:
+					createHouse(agent_login);
+					break;
+				case NEW_APARTMENT:
+					createApartment(agent_login);
 					break;
 				case BACK:
 					return;
@@ -200,7 +205,7 @@ public class Main {
 					deleteEstate(agent_login);
 					break;
 				case SHOW_ESTATES:
-					showEstates();
+					showEstates(agent_login);
 					break;
 			}
 		}
@@ -211,7 +216,7 @@ public class Main {
 	 * Erzeugt ein neues Estate Objekt in der Datenbank
 	 * @param makler_login der angemeldete Makler
 	 */
-	public static void createEstate(String makler_login) {
+	public static void createHouse(String makler_login) {
 		Estate estate = new Estate();
 		//Estate attribute abfragen
 		estate.setZip(FormUtil.readInt("ZIP (int)"));
@@ -219,6 +224,9 @@ public class Main {
 		estate.setCity(FormUtil.readString("City (string)"));
 		estate.setStreet(FormUtil.readString("Street (string)"));
 		estate.setArea(FormUtil.readString("Area (Stadtteil)"));
+		estate.setFloors(FormUtil.readInt("Floors"));
+		estate.setPrice(FormUtil.readInt("Price"));
+		estate.setGarden(FormUtil.readInt("Garden"));
 		//den makler benutzen welcher sich eingeloggt hat
 		estate.setFk_agent(makler_login);
 
@@ -226,10 +234,36 @@ public class Main {
 	}
 
 	/**
-	 * Gibt alle Estates aus
+	 * Erzeugt ein neues Estate Objekt in der Datenbank
+	 * @param makler_login der angemeldete Makler
 	 */
-	public static void showEstates() {
-		Estate.showEstates();
+	public static void createApartment(String makler_login) {
+		Estate estate = new Estate();
+		//Estate attribute abfragen
+		estate.setZip(FormUtil.readInt("ZIP (int)"));
+		estate.setNumber(FormUtil.readInt("Number (int)"));
+		estate.setCity(FormUtil.readString("City (string)"));
+		estate.setStreet(FormUtil.readString("Street (string)"));
+		estate.setArea(FormUtil.readString("Area (Stadtteil)"));
+		estate.setFloor(FormUtil.readInt("Floor"));
+		estate.setRent(FormUtil.readInt("Rent"));
+		estate.setRooms(FormUtil.readInt("Rooms"));
+		estate.setBalcony(FormUtil.readInt("Balcony"));
+		estate.setKitchen(FormUtil.readInt("Kitchen"));
+		//den makler benutzen welcher sich eingeloggt hat
+		estate.setFk_agent(makler_login);
+
+		estate.save();
+		estate.saveApartment();
+
+	}
+
+	/**
+	 * Gibt alle Estates aus vom eingeloggten Makler
+	 * @param makler_login der angemeldete Makler
+	 */
+	public static void showEstates(String makler_login) {
+		Estate.showEstates(makler_login);
 	}
 
 	/**

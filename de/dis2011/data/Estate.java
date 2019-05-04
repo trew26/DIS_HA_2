@@ -11,6 +11,15 @@ public class Estate {
     private int id = -1;
     private int zip;
     private int number;
+    private int floor;
+    private int rent;
+    private int rooms;
+    private int balcony;
+    private int kitchen;
+    private int floors;
+    private int price;
+    private int garden;
+
 
     private String city;
     private String street;
@@ -20,7 +29,7 @@ public class Estate {
     public int getId() {
         return id;
     }
-
+    //estate
     public int getzip() {
         return zip;
     }
@@ -44,7 +53,67 @@ public class Estate {
     public String getFk_agent() {
         return fk_agent;
     }
+    //apartment
+    public int getFloor() {
+        return floor;
+    }
 
+    public int getRent() {
+        return rent;
+    }
+
+    public int getRooms() {
+        return rooms;
+    }
+
+    public int getBalcony() {
+        return balcony;
+    }
+
+    public int getKitchen() {
+        return kitchen;
+    }
+    //house
+    public int getFloors() {
+        return floors;
+    }
+
+    public int getPrice() { return price; }
+
+    public int getGarden() { return garden; }
+    //house
+    public void setFloors(int floors) {
+        this.floors = floors;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public void setGarden(int garden) {
+        this.garden = garden;
+    }
+    //apartment
+    public void setFloor(int floor) {
+        this.floor = floor;
+    }
+
+    public void setRent(int rent) {
+        this.rent = rent;
+    }
+
+    public void setRooms(int rooms) {
+        this.rooms = rooms;
+    }
+
+    public void setBalcony(int balcony) {
+        this.balcony = balcony;
+    }
+
+    public void setKitchen(int kitchen) {
+        this.kitchen = kitchen;
+    }
+    //estate
     public void setId(int id) {
         this.id = id;
     }
@@ -154,22 +223,48 @@ public class Estate {
         }
     }
 
-    public static void showEstates() {
+    public void saveApartment(){
+        // Hole Verbindung
+        Connection con = DB2ConnectionManager.getInstance().getConnection();
+
+        try {
+            String insertSQL = "INSERT INTO apartment(fk_estate_id, floor, rent, rooms, kitchen, balcony) VALUES (?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement insert_pstmt = con.prepareStatement(insertSQL,
+                    Statement.RETURN_GENERATED_KEYS);
+
+            // Setze Anfrageparameter und fC<hre Anfrage aus
+            insert_pstmt.setInt(1, getId());
+            insert_pstmt.setInt(2, getFloor());
+            insert_pstmt.setInt(3, getRent());
+            insert_pstmt.setInt(4, getRooms());
+            insert_pstmt.setInt(5, getKitchen());
+            insert_pstmt.setInt(6, getBalcony());
+
+            insert_pstmt.executeUpdate();
+            insert_pstmt.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void showEstates(String makler_login) {
         // Hole Verbindung
         Connection con = DB2ConnectionManager.getInstance().getConnection();
         try {
-            String selectSQL = "SELECT id, street, fk_agent_login FROM estate";
-            PreparedStatement pstmt = con.prepareStatement(selectSQL);
-
-            ResultSet rs = pstmt.executeQuery();
-
+            // Teste ob Estate mit id existiert
+            String test_SQL = "SELECT * FROM estate WHERE fk_agent_login = ?";
+            PreparedStatement test_pstmt = con.prepareStatement(test_SQL);
+            test_pstmt.setString(1, makler_login);
+            ResultSet rs = test_pstmt.executeQuery();
             while(rs.next()) {
                 System.out.println("ID: " + rs.getString("id") +
                         ", Street: " + rs.getString("street") +
                         ", Agent: " + rs.getString("fk_agent_login"));
             }
 
-            pstmt.close();
+            test_pstmt.close();
             rs.close();
             System.out.println();
 
