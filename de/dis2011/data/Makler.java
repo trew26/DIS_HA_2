@@ -134,8 +134,6 @@ public class Makler {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
-
 	}
 	
 	/**

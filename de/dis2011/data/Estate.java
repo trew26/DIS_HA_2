@@ -84,12 +84,6 @@ public class Estate {
                 // damit spC$ter generierte IDs zurC<ckgeliefert werden!
                 String insertSQL = "INSERT INTO estate(id, zip, number, city, street, area, fk_agent_login) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-                //testing
-                //String sttaticSQL = "INSERT INTO estate(id, zip, number, city, street, area, fk_agent_login) VALUES (6, 12345, 42, 'TEST querry', 'blah', 'blah', 'Finn123')";
-                //PreparedStatement test = con.prepareStatement(sttaticSQL, Statement.RETURN_GENERATED_KEYS);
-                //test.executeUpdate();
-                //test.close();
-
                 PreparedStatement insert_pstmt = con.prepareStatement(insertSQL,
                         Statement.RETURN_GENERATED_KEYS);
 
@@ -119,8 +113,106 @@ public class Estate {
                 insert_pstmt.setString(7, getFk_agent());
 
                 insert_pstmt.executeUpdate();
-
                 insert_pstmt.close();
+            }
+            else {
+                // wenn ID nicht initial ist wird die Safe methode an einem Objekt aufgerufen, d.h. es wird ein Update durchgeführt
+                // prüfe ob makler Estate bearbeiten darf
+                String testSQL = "SELECT * FROM estate WHERE id = ?";
+                PreparedStatement test_pstmt = con.prepareStatement(testSQL);
+
+                test_pstmt.setInt(1, getId());
+
+                ResultSet test_rs = test_pstmt.executeQuery();
+                if(test_rs.next()) {
+                    if(!(test_rs.getString("fk_agent_login").equals(getFk_agent()))) {
+                        System.out.println("Makler " + getFk_agent() + " ist nicht berechtigt die Estate mit ID " + getId() +
+                                " zu bearbeiten, da diese von Makler " + test_rs.getString("fk_agent_login") + " verwaltet wird.");
+                        test_pstmt.close();
+                        test_rs.close();
+                    }
+                    else {
+                        // wenn makler bearbeiten darf
+                        String updateSQL = "Update estate SET zip = ?, number = ?, city = ?, street = ?, area = ?, fk_agent_login = ? WHERE id = ?";
+                        PreparedStatement update_pstmt = con.prepareStatement(updateSQL);
+
+                        update_pstmt.setInt(1, getzip());
+                        update_pstmt.setInt(2, getNumber());
+                        update_pstmt.setString(3, getCity());
+                        update_pstmt.setString(4, getStreet());
+                        update_pstmt.setString(5, getArea());
+                        update_pstmt.setString(6, getFk_agent());
+                        update_pstmt.setInt(7, getId());
+
+                        update_pstmt.executeUpdate();
+                        update_pstmt.close();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void showEstates() {
+        // Hole Verbindung
+        Connection con = DB2ConnectionManager.getInstance().getConnection();
+        try {
+            String selectSQL = "SELECT id, street, fk_agent_login FROM estate";
+            PreparedStatement pstmt = con.prepareStatement(selectSQL);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                System.out.println("ID: " + rs.getString("id") +
+                        ", Street: " + rs.getString("street") +
+                        ", Agent: " + rs.getString("fk_agent_login"));
+            }
+
+            pstmt.close();
+            rs.close();
+            System.out.println();
+
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteEstate(int id, String makler_login) {
+        // Hole Verbindung
+        Connection con = DB2ConnectionManager.getInstance().getConnection();
+
+        try {
+            // Teste ob Estate mit id existiert
+            String test_SQL = "SELECT * FROM estate WHERE id = ?";
+            PreparedStatement test_pstmt = con.prepareStatement(test_SQL);
+            test_pstmt.setInt(1, id);
+            ResultSet test_rs = test_pstmt.executeQuery();
+            if (!test_rs.next()){
+                System.out.println("Kein Makler mit der ID " + id + " vorhanden.");
+                return;
+            }
+
+            else if (test_rs.getString("fk_agent_login") != makler_login) {
+                System.out.println("Makler " + makler_login + " ist nicht berechtigt die Estate mit ID " + id +
+                        " zu löschen, da diese von Makler " + test_rs.getString("fk_agent_login") + " verwaltet wird.");
+
+                test_pstmt.close();
+                test_rs.close();
+            }
+            else {
+                // Tatsächlies löschen
+                // Erzeuge Querry
+                String selectSQL = "DELETE FROM estate WHERE id = ?";
+                PreparedStatement pstmt = con.prepareStatement(selectSQL);
+                pstmt.setInt(1, id);
+
+                // Führe Querry aus
+                pstmt.executeUpdate();
+                pstmt.close();
+                System.out.println("Estate mit ID " + id + " wurde gelöscht.");
+
             }
         } catch (SQLException e) {
             e.printStackTrace();

@@ -127,22 +127,31 @@ public class Main {
 		Makler.delete(makler_id);
 	}
 
+	/**
+	 * Bearbeitet eines existierenden Maklers andhand der angegebenen ID
+	 */
 	public static void editMakler() {
 		int makler_id = FormUtil.readInt("ID des zu bearbeitenden Maklers");
 		Makler m = Makler.load(makler_id);
-		m.setName(FormUtil.readString("Name"));
-		m.setAddress(FormUtil.readString("Adresse"));
-		m.setLogin(FormUtil.readString("Login"));
-		m.setPassword(FormUtil.readString("Passwort"));
+		m.setName(FormUtil.readString("Neuer Name"));
+		m.setAddress(FormUtil.readString("Neue Adresse"));
+		m.setLogin(FormUtil.readString("Neuer Login"));
+		m.setPassword(FormUtil.readString("Neues Passwort"));
 		m.save();
 
 		System.out.println("Makler mit der ID "+m.getId()+" wurde gespeichert.");
 	}
 
+	/**
+	 * Gibt alle existierenden Makler aus
+	 */
 	public static void showAllMaklers(){
 		Makler.showAll();
 	}
 
+	/**
+	 * Öffnet die Estate Verwaltung. Dazu muss sich ein Makler mit seinem Passwort und Login anmelden.
+	 */
 	public static void showEstateMenu() {
 		// check login from makler
 		String agent_login = FormUtil.readString("Bitte geben Sie den Makler Login ein");
@@ -157,7 +166,7 @@ public class Main {
 		} else {
 			System.out.println("Login war nicht erfolgreich!");
 			System.out.println();
-
+			return;
 		}
 
 		//Menüoptionen
@@ -170,9 +179,9 @@ public class Main {
 		//Estateverwaltungsmenü
 		Menu estateMenu = new Menu("Estate-Verwaltung");
 		estateMenu.addEntry("Estate anlegen", NEW_ESTATE);
-		estateMenu.addEntry("Zeige alle Estates", EDIT_ESTATE);
-		estateMenu.addEntry("Estate bearbeiten", DELETE_ESTATE);
-		estateMenu.addEntry("Estate löschen", SHOW_ESTATES);
+		estateMenu.addEntry("Zeige alle Estates", SHOW_ESTATES);
+		estateMenu.addEntry("Estate bearbeiten", EDIT_ESTATE);
+		estateMenu.addEntry("Estate löschen", DELETE_ESTATE);
 		estateMenu.addEntry("Zurück zum Hauptmenü", BACK);
 
 		//Verarbeite Eingabe
@@ -185,19 +194,23 @@ public class Main {
 				case BACK:
 					return;
 				case EDIT_ESTATE:
-					System.out.println("Not yet implemented");
+					editEstate(agent_login);
 					break;
 				case DELETE_ESTATE:
-					System.out.println("Not yet implemented");
+					deleteEstate(agent_login);
 					break;
 				case SHOW_ESTATES:
-					System.out.println("Not yet implemented");
+					showEstates();
 					break;
 			}
 		}
 
 	}
 
+	/**
+	 * Erzeugt ein neues Estate Objekt in der Datenbank
+	 * @param makler_login der angemeldete Makler
+	 */
 	public static void createEstate(String makler_login) {
 		Estate estate = new Estate();
 		//Estate attribute abfragen
@@ -205,9 +218,47 @@ public class Main {
 		estate.setNumber(FormUtil.readInt("Number (int)"));
 		estate.setCity(FormUtil.readString("City (string)"));
 		estate.setStreet(FormUtil.readString("Street (string)"));
-		estate.setArea(FormUtil.readString("Area (string)"));
+		estate.setArea(FormUtil.readString("Area (Stadtteil)"));
 		//den makler benutzen welcher sich eingeloggt hat
 		estate.setFk_agent(makler_login);
+
+		estate.save();
+	}
+
+	/**
+	 * Gibt alle Estates aus
+	 */
+	public static void showEstates() {
+		Estate.showEstates();
+	}
+
+	/**
+	 * löscht eine Estate. Der angemeldete Makler kann nur Estates löschen, welche von Ihm verwaltet werden
+	 * @param agent_login der angemeldete Makler
+	 */
+	public static void deleteEstate(String agent_login) {
+		int estate_id = FormUtil.readInt("ID der zu löschenden Estate");
+		Estate.deleteEstate(estate_id, agent_login);
+	}
+
+	/**
+	 * Bearbeiten einer Estate. Der Angemeldete Makler kann nur Estate bearbeiten, welche von Ihm verwaltet werden
+	 * @param agent_login der angemeldete Makler
+	 */
+	public static void editEstate(String agent_login) {
+		int estate_id = FormUtil.readInt("ID der zu bearbeitenden Estate");
+
+		System.out.println("Geben Sie nun die neuen Werte für die Estate an");
+
+		Estate estate = new Estate();
+		//Estate attribute abfragen
+		estate.setId(estate_id);
+		estate.setZip(FormUtil.readInt("Neuer ZIP-Code"));
+		estate.setNumber(FormUtil.readInt("Neue Nummer"));
+		estate.setCity(FormUtil.readString("Neue City"));
+		estate.setStreet(FormUtil.readString("Neue Straße"));
+		estate.setArea(FormUtil.readString("Neue Area (Stadtteil)"));
+		estate.setFk_agent(agent_login);
 
 		estate.save();
 	}
