@@ -1,5 +1,6 @@
 package de.dis2011;
 
+import de.dis2011.data.Contract;
 import de.dis2011.data.Makler;
 import de.dis2011.data.Estate;
 
@@ -211,7 +212,7 @@ public class Main {
 					showEstates(agent_login);
 					break;
 				case SHOW_CONTRACT_MENU:
-					showContractMenu();
+					showContractMenu(agent_login);
 					break;
 			}
 		}
@@ -313,63 +314,70 @@ public class Main {
 		estate.updateApartment(agent_login);
 		estate.updateHouse(agent_login);
 	}
-	public static void showContractMenu(){
-		// check login from makler
-		String agent_login = FormUtil.readString("Bitte geben Sie den Makler Login ein");
-		String agent_pw = FormUtil.readString("Bitte geben Sie das Makler Passwort ein");
-
-		Boolean correct_login = Makler.check_login(agent_login, agent_pw);
-
-		if (correct_login){
-			System.out.println("Login erfolgreich!");
-			System.out.println();
-
-		} else {
-			System.out.println("Login war nicht erfolgreich!");
-			System.out.println();
-			return;
-		}
-
+	public static void showContractMenu(String agent_login){
 		//Menüoptionen
-		final int NEW_HOUSE = 0;
-		final int NEW_APARTMENT = 1;
+		final int NEW_PERSON = 0;
+		final int NEW_SELL = 1;
 		final int BACK = 2;
-		final int EDIT_ESTATE = 3;
-		final int DELETE_ESTATE = 4;
-		final int SHOW_ESTATES = 5;
+		final int NEW_RENT = 3;
+		final int SHOW_CONTRACTS = 4;
 
 		//Estateverwaltungsmenü
 		Menu estateMenu = new Menu("Estate-Verwaltung");
-		estateMenu.addEntry("Haus anlegen", NEW_HOUSE);
-		estateMenu.addEntry("Apartment anlegen", NEW_APARTMENT);
-		estateMenu.addEntry("Zeige alle Estates", SHOW_ESTATES);
-		estateMenu.addEntry("Estate bearbeiten", EDIT_ESTATE);
-		estateMenu.addEntry("Estate löschen", DELETE_ESTATE);
+		estateMenu.addEntry("Person anlegen", NEW_PERSON);
+		estateMenu.addEntry("Kaufvertrag", NEW_SELL);
+		estateMenu.addEntry("Mietvertrag", NEW_RENT);
+		estateMenu.addEntry("Verträge anzeigen", SHOW_CONTRACTS);
 		estateMenu.addEntry("Zurück zum Hauptmenü", BACK);
 
 		//Verarbeite Eingabe
 		while(true) {
 			int response = estateMenu.show();
 			switch(response) {
-				case NEW_HOUSE:
-					createHouse(agent_login);
+				case NEW_PERSON:
+					createPerson();
 					break;
-				case NEW_APARTMENT:
-					createApartment(agent_login);
+				case NEW_RENT:
+					createTenancy();
 					break;
 				case BACK:
 					return;
-				case EDIT_ESTATE:
+				case NEW_SELL:
 					editEstate(agent_login);
 					break;
-				case DELETE_ESTATE:
-					deleteEstate(agent_login);
-					break;
-				case SHOW_ESTATES:
+				case SHOW_CONTRACTS:
 					showEstates(agent_login);
 					break;
 			}
 		}
+	}
+	/**
+	 * Erzeugt eine neue Person in der Datenbank
+	 */
+	public static void createPerson() {
+		Contract contract = new Contract();
 
+		contract.setFirst_name(FormUtil.readString("First Name:"));
+		contract.setLast_name(FormUtil.readString("Last Name:"));
+		contract.setAddress(FormUtil.readString("Address:"));
+
+		contract.savePerson();
+	}
+
+	/**
+	 * Erzeugt ein neues Estate Objekt in der Datenbank
+	 */
+	public static void createTenancy() {
+		Contract contract = new Contract();
+
+		contract.setPlace(FormUtil.readString("Place:"));
+		contract.setPerson(FormUtil.readInt("Person:"));
+		contract.setContractdate(FormUtil.readString("Datum des Vertragsvereinbarung (YYYY-MM-DD):"));
+		contract.setStartdate(FormUtil.readString("Startdatum des Vertrags (YYYY-MM-DD):"));
+		contract.setDuration(FormUtil.readInt("Duration:"));
+		contract.setAdditionalCost(FormUtil.readInt("Additional Cost:"));
+		contract.setAppartment(FormUtil.readInt("Appartment ID:"));
+
+		contract.saveContract();
 	}
 }
