@@ -227,8 +227,7 @@ public class Estate {
         // Hole Verbindung
         Connection con = DB2ConnectionManager.getInstance().getConnection();
 
-        try {
-            String insertSQL = "INSERT INTO apartment(fk_estate_id, floor, rent, rooms, kitchen, balcony) VALUES (?, ?, ?, ?, ?, ?)";
+        try {   String insertSQL = "INSERT INTO apartment(fk_estate_id, floor, rent, rooms, kitchen, balcony) VALUES (?, ?, ?, ?, ?, ?)";
 
             PreparedStatement insert_pstmt = con.prepareStatement(insertSQL,
                     Statement.RETURN_GENERATED_KEYS);
@@ -248,6 +247,90 @@ public class Estate {
             e.printStackTrace();
         }
     }
+    public void saveHouse(){
+        // Hole Verbindung
+        Connection con = DB2ConnectionManager.getInstance().getConnection();
+
+        try {
+            String insertSQL = "INSERT INTO house(fk_estate_id, floors, price, garden) VALUES (?, ?, ?, ?)";
+
+            PreparedStatement insert_pstmt = con.prepareStatement(insertSQL,
+                    Statement.RETURN_GENERATED_KEYS);
+
+            // Setze Anfrageparameter und fC<hre Anfrage aus
+            insert_pstmt.setInt(1, getId());
+            insert_pstmt.setInt(2, getFloors());
+            insert_pstmt.setInt(3, getPrice());
+            insert_pstmt.setInt(4, getGarden());
+
+            insert_pstmt.executeUpdate();
+            insert_pstmt.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateApartment(String markler_login){
+        // Hole Verbindung
+        Connection con = DB2ConnectionManager.getInstance().getConnection();
+        try{
+            // wenn ID nicht initial ist wird die Safe methode an einem Objekt aufgerufen, d.h. es wird ein Update durchgeführt
+            // prüfe ob makler Estate bearbeiten darf
+            String testSQL = "SELECT * FROM estate WHERE id = ? AND fk_agent_login = ?";
+            PreparedStatement test_pstmt = con.prepareStatement(testSQL);
+
+            test_pstmt.setInt(1, getId());
+            test_pstmt.setString(2, markler_login);
+
+            ResultSet test_rs = test_pstmt.executeQuery();
+            if(test_rs.next()) {
+                // wenn makler bearbeiten darf
+                String updateSQL = "Update apartment SET floor = ?, rent = ?, rooms = ?, kitchen = ?, balcony = ? WHERE fk_estate_id = ?";
+                PreparedStatement update_pstmt = con.prepareStatement(updateSQL);
+
+                update_pstmt.setInt(1, getFloor());
+                update_pstmt.setInt(2, getRent());
+                update_pstmt.setInt(3, getRooms());
+                update_pstmt.setInt(4, getKitchen());
+                update_pstmt.setInt(5, getBalcony());
+                update_pstmt.setInt(6, getId());
+
+                update_pstmt.executeUpdate();
+                update_pstmt.close();
+            }
+        } catch (SQLException e) {
+        }
+    }
+    public void updateHouse(String markler_login){
+        // Hole Verbindung
+        Connection con = DB2ConnectionManager.getInstance().getConnection();
+        try{
+            // wenn ID nicht initial ist wird die Safe methode an einem Objekt aufgerufen, d.h. es wird ein Update durchgeführt
+            // prüfe ob makler Estate bearbeiten darf
+            String testSQL = "SELECT * FROM estate WHERE id = ? AND fk_agent_login = ?";
+            PreparedStatement test_pstmt = con.prepareStatement(testSQL);
+
+            test_pstmt.setInt(1, getId());
+            test_pstmt.setString(2, markler_login);
+
+            ResultSet test_rs = test_pstmt.executeQuery();
+            if(test_rs.next()) {
+                // wenn makler bearbeiten darf
+                String updateSQL = "Update house SET floors = ?, price = ?, garden = ? WHERE fk_estate_id = ?";
+                PreparedStatement update_pstmt = con.prepareStatement(updateSQL);
+
+                update_pstmt.setInt(1, getFloors());
+                update_pstmt.setInt(2, getPrice());
+                update_pstmt.setInt(3, getGarden());
+                update_pstmt.setInt(4, getId());
+
+                update_pstmt.executeUpdate();
+                update_pstmt.close();
+            }
+        } catch (SQLException e) {
+        }
+    }
 
     public static void showEstates(String makler_login) {
         // Hole Verbindung
@@ -260,8 +343,7 @@ public class Estate {
             ResultSet rs = test_pstmt.executeQuery();
             while(rs.next()) {
                 System.out.println("ID: " + rs.getString("id") +
-                        ", Street: " + rs.getString("street") +
-                        ", Agent: " + rs.getString("fk_agent_login"));
+                        ", Street: " + rs.getString("street"));
             }
 
             test_pstmt.close();
@@ -280,23 +362,47 @@ public class Estate {
 
         try {
             // Teste ob Estate mit id existiert
-            String test_SQL = "SELECT * FROM estate WHERE id = ?";
+            String test_SQL = "SELECT * FROM estate WHERE id = ? AND fk_agent_login = ?";
             PreparedStatement test_pstmt = con.prepareStatement(test_SQL);
             test_pstmt.setInt(1, id);
+            test_pstmt.setString(2, makler_login);
             ResultSet test_rs = test_pstmt.executeQuery();
             if (!test_rs.next()){
-                System.out.println("Kein Makler mit der ID " + id + " vorhanden.");
-                return;
-            }
-
-            else if (test_rs.getString("fk_agent_login") != makler_login) {
-                System.out.println("Makler " + makler_login + " ist nicht berechtigt die Estate mit ID " + id +
-                        " zu löschen, da diese von Makler " + test_rs.getString("fk_agent_login") + " verwaltet wird.");
-
+                System.out.println("Keine Berechtigung für Estate mit der ID " + id + " vorhanden.");
                 test_pstmt.close();
                 test_rs.close();
+                return;
             }
             else {
+                try {
+                    String apart_SQL = "SELECT * FROM apartment WHERE fk_estate_id = ?";
+                    PreparedStatement apart_pstmt = con.prepareStatement(apart_SQL);
+                    apart_pstmt.setInt(1, id);
+                    ResultSet apart_rs = apart_pstmt.executeQuery();
+                    if(!apart_rs.next()){
+                        //lösche den Eintrag aus House
+                        String HdeleteSQL = "DELETE FROM house WHERE FK_ESTATE_ID = ?";
+                        PreparedStatement Adelete_pstmt = con.prepareStatement(HdeleteSQL);
+                        Adelete_pstmt.setInt(1, id);
+
+                        // Führe Querry aus
+                        Adelete_pstmt.executeUpdate();
+                        Adelete_pstmt.close();
+                    }
+                    else{
+                        //lösche den Eintrag aus Apartment
+                        String AdeleteSQL = "DELETE FROM apartment WHERE FK_ESTATE_ID = ?";
+                        PreparedStatement Hdelete_pstmt = con.prepareStatement(AdeleteSQL);
+                        Hdelete_pstmt.setInt(1, id);
+
+                        // Führe Querry aus
+                        Hdelete_pstmt.executeUpdate();
+                        Hdelete_pstmt.close();
+                    }
+                }
+                catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 // Tatsächlies löschen
                 // Erzeuge Querry
                 String selectSQL = "DELETE FROM estate WHERE id = ?";

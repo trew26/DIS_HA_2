@@ -92,6 +92,7 @@ public class Main {
 				case SHOW_MAKLERS:
 					showAllMaklers();
 					break;
+
 			}
 		}
 	}
@@ -176,6 +177,7 @@ public class Main {
 		final int EDIT_ESTATE = 3;
 		final int DELETE_ESTATE = 4;
 		final int SHOW_ESTATES = 5;
+		final int SHOW_CONTRACT_MENU = 6;
 
 		//Estateverwaltungsmenü
 		Menu estateMenu = new Menu("Estate-Verwaltung");
@@ -185,6 +187,7 @@ public class Main {
 		estateMenu.addEntry("Estate bearbeiten", EDIT_ESTATE);
 		estateMenu.addEntry("Estate löschen", DELETE_ESTATE);
 		estateMenu.addEntry("Zurück zum Hauptmenü", BACK);
+		estateMenu.addEntry("Vertragsmenü", SHOW_CONTRACT_MENU);
 
 		//Verarbeite Eingabe
 		while(true) {
@@ -207,6 +210,9 @@ public class Main {
 				case SHOW_ESTATES:
 					showEstates(agent_login);
 					break;
+				case SHOW_CONTRACT_MENU:
+					showContractMenu();
+					break;
 			}
 		}
 
@@ -226,11 +232,12 @@ public class Main {
 		estate.setArea(FormUtil.readString("Area (Stadtteil)"));
 		estate.setFloors(FormUtil.readInt("Floors"));
 		estate.setPrice(FormUtil.readInt("Price"));
-		estate.setGarden(FormUtil.readInt("Garden"));
+		estate.setGarden(FormUtil.readInt("Garden (1 if present)"));
 		//den makler benutzen welcher sich eingeloggt hat
 		estate.setFk_agent(makler_login);
 
 		estate.save();
+		estate.saveHouse();
 	}
 
 	/**
@@ -248,8 +255,8 @@ public class Main {
 		estate.setFloor(FormUtil.readInt("Floor"));
 		estate.setRent(FormUtil.readInt("Rent"));
 		estate.setRooms(FormUtil.readInt("Rooms"));
-		estate.setBalcony(FormUtil.readInt("Balcony"));
-		estate.setKitchen(FormUtil.readInt("Kitchen"));
+		estate.setBalcony(FormUtil.readInt("Balcony (1 if present)"));
+		estate.setKitchen(FormUtil.readInt("Kitchen (1 if present)"));
 		//den makler benutzen welcher sich eingeloggt hat
 		estate.setFk_agent(makler_login);
 
@@ -293,7 +300,76 @@ public class Main {
 		estate.setStreet(FormUtil.readString("Neue Straße"));
 		estate.setArea(FormUtil.readString("Neue Area (Stadtteil)"));
 		estate.setFk_agent(agent_login);
+		estate.setFloor(FormUtil.readInt("Floor"));
+		estate.setRent(FormUtil.readInt("Rent"));
+		estate.setRooms(FormUtil.readInt("Rooms"));
+		estate.setBalcony(FormUtil.readInt("Balcony (1 if present)"));
+		estate.setKitchen(FormUtil.readInt("Kitchen (1 if present)"));
+		estate.setFloors(FormUtil.readInt("Floors"));
+		estate.setPrice(FormUtil.readInt("Price"));
+		estate.setGarden(FormUtil.readInt("Garden (1 if present)"));
 
 		estate.save();
+		estate.updateApartment(agent_login);
+		estate.updateHouse(agent_login);
+	}
+	public static void showContractMenu(){
+		// check login from makler
+		String agent_login = FormUtil.readString("Bitte geben Sie den Makler Login ein");
+		String agent_pw = FormUtil.readString("Bitte geben Sie das Makler Passwort ein");
+
+		Boolean correct_login = Makler.check_login(agent_login, agent_pw);
+
+		if (correct_login){
+			System.out.println("Login erfolgreich!");
+			System.out.println();
+
+		} else {
+			System.out.println("Login war nicht erfolgreich!");
+			System.out.println();
+			return;
+		}
+
+		//Menüoptionen
+		final int NEW_HOUSE = 0;
+		final int NEW_APARTMENT = 1;
+		final int BACK = 2;
+		final int EDIT_ESTATE = 3;
+		final int DELETE_ESTATE = 4;
+		final int SHOW_ESTATES = 5;
+
+		//Estateverwaltungsmenü
+		Menu estateMenu = new Menu("Estate-Verwaltung");
+		estateMenu.addEntry("Haus anlegen", NEW_HOUSE);
+		estateMenu.addEntry("Apartment anlegen", NEW_APARTMENT);
+		estateMenu.addEntry("Zeige alle Estates", SHOW_ESTATES);
+		estateMenu.addEntry("Estate bearbeiten", EDIT_ESTATE);
+		estateMenu.addEntry("Estate löschen", DELETE_ESTATE);
+		estateMenu.addEntry("Zurück zum Hauptmenü", BACK);
+
+		//Verarbeite Eingabe
+		while(true) {
+			int response = estateMenu.show();
+			switch(response) {
+				case NEW_HOUSE:
+					createHouse(agent_login);
+					break;
+				case NEW_APARTMENT:
+					createApartment(agent_login);
+					break;
+				case BACK:
+					return;
+				case EDIT_ESTATE:
+					editEstate(agent_login);
+					break;
+				case DELETE_ESTATE:
+					deleteEstate(agent_login);
+					break;
+				case SHOW_ESTATES:
+					showEstates(agent_login);
+					break;
+			}
+		}
+
 	}
 }
